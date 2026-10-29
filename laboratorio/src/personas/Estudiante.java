@@ -1,23 +1,28 @@
 package personas;
 
-public class Estudiante extends Persona {
-    private String codigoEstudiantil;
-    private String carrera;
+/**
+ * Clase que representa a un estudiante.
+ */
 
-    public Estudiante(String documentoIdentidad, String nombre, String email, String codigoEstudiantil, String carrera) {
-        super(documentoIdentidad, nombre, email); // Llama al constructor de Persona
-        this.codigoEstudiantil = codigoEstudiantil;
-        this.carrera = carrera;
+public class Estudiante extends Persona {
+    private String programaAcademico;
+
+    public Estudiante(String documento, String nombre, String programaAcademico) {
+        super(documento, nombre);
+        this.programaAcademico = programaAcademico;
+    }
+
+    public String getProgramaAcademico() {
+        return programaAcademico;
+    }
+
+    @Override //Este método sobrescribe el método abstracto de la clase Persona y devuelve el número máximo de días que un estudiante puede tener un préstamo.
+    public int getDiasMaximosPrestamo() {
+        return 3;
     }
 
     @Override
-    public String obtenerRol() {
-        return "Estudiante";
+    public int getMaximoEquipos() {
+        return 1;
     }
-
-    
-
-    // Getters y Setters propios
-    public String getCodigoEstudiantil() { return codigoEstudiantil; }
-    public String getCarrera() { return carrera; }
 }

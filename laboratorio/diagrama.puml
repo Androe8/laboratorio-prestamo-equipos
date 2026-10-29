@@ -1,0 +1,162 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' --- PERSONAS ---
+abstract class Persona {
+    - documento: String
+    - nombre: String
+    + Persona(documento: String, nombre: String)
+    + getDocumento(): String
+    + getNombre(): String
+    + {abstract} getDiasMaximosPrestamo(): int
+    + {abstract} getMaximoEquipos(): int
+}
+
+class Estudiante {
+    - programaAcademico: String
+    + Estudiante(documento: String, nombre: String, programaAcademico: String)
+    + getProgramaAcademico(): String
+    + getDiasMaximosPrestamo(): int
+    + getMaximoEquipos(): int
+}
+
+class Docente {
+    - dependencia: String
+    + Docente(documento: String, nombre: String, dependencia: String)
+    + getDependencia(): String
+    + getDiasMaximosPrestamo(): int
+    + getMaximoEquipos(): int
+}
+
+Persona <|-- Estudiante
+Persona <|-- Docente
+
+' --- EQUIPOS Y CARGADOR ---
+class Cargador {
+    - serial: String
+    - vatios: int
+    + Cargador(serial: String, vatios: int)
+    + getSerial(): String
+    + getVatios(): int
+}
+
+abstract class Equipo {
+    - codigo: String
+    - marca: String
+    - disponible: boolean
+    + Equipo(codigo: String, marca: String)
+    + getCodigo(): String
+    + getMarca(): String
+    + isDisponible(): boolean
+    + setDisponible(disponible: boolean): void
+    + {abstract} getMultaDiaria(): double
+}
+
+class Portatil {
+    - memoriaRamGb: int
+    - cargador: Cargador
+    + Portatil(codigo: String, marca: String, memoriaRamGb: int, serialCargador: String, vatiosCargador: int)
+    + getMemoriaRamGb(): int
+    + getCargador(): Cargador
+    + getMultaDiaria(): double
+}
+
+class Proyector {
+    - lumenes: int
+    + Proyector(codigo: String, marca: String, lumenes: int)
+    + getLumenes(): int
+    + getMultaDiaria(): double
+}
+
+class Tablet {
+    + Tablet(codigo: String, marca: String)
+    + getMultaDiaria(): double
+}
+
+Equipo <|-- Portatil
+Equipo <|-- Proyector
+Equipo <|-- Tablet
+Portatil *-- "1" Cargador : composición
+
+' --- NOTIFICACIONES Y REGLAS DE MULTA ---
+interface NotificadorServicio {
+    + enviarAviso(persona: Persona, mensaje: String): void
+}
+
+class NotificadorConsola {
+    + enviarAviso(persona: Persona, mensaje: String): void
+}
+
+NotificadorServicio <|.. NotificadorConsola
+
+interface ReglaMulta {
+    + calcularMulta(equipos: List<Equipo>, diasRetraso: int): double
+}
+
+class ReglaMultaEstandar {
+    + calcularMulta(equipos: List<Equipo>, diasRetraso: int): double
+}
+
+class ReglaMultaSemanaUniversitaria {
+    + calcularMulta(equipos: List<Equipo>, diasRetraso: int): double
+}
+
+ReglaMulta <|.. ReglaMultaEstandar
+ReglaMulta <|.. ReglaMultaSemanaUniversitaria
+
+' --- PERSISTENCIA / REPOSITORIO ---
+interface PrestamoRepository {
+    + guardar(prestamo: Prestamo): void
+    + obtenerActivosPorPersona(persona: Persona): List<Prestamo>
+    + obtenerTodos(): List<Prestamo>
+}
+
+class PrestamoRepositoryMemoria {
+    - prestamos: List<Prestamo>
+    + guardar(prestamo: Prestamo): void
+    + obtenerActivosPorPersona(persona: Persona): List<Prestamo>
+    + obtenerTodos(): List<Prestamo>
+}
+
+PrestamoRepository <|.. PrestamoRepositoryMemoria
+
+' --- PRÉSTAMO Y SERVICIOS ---
+class Prestamo {
+    - {static} contadorConsecutivo: int = 1
+    - numeroConsecutivo: int
+    - persona: Persona
+    - equipos: List<Equipo>
+    - activo: boolean
+    + Prestamo(persona: Persona, equipos: List<Equipo>)
+    + getNumeroConsecutivo(): int
+    + getPersona(): Persona
+    + getEquipos(): List<Equipo>
+    + isActivo(): boolean
+    + setActivo(activo: boolean): void
+}
+
+Prestamo "1" --> "1" Persona
+Prestamo "1" o-- "1..*" Equipo : agregación
+
+class ServicioPrestamos {
+    - prestamoRepository: PrestamoRepository
+    - notificador: NotificadorServicio
+    - reglaMulta: ReglaMulta
+    + ServicioPrestamos(prestamoRepository: PrestamoRepository, notificador: NotificadorServicio, reglaMulta: ReglaMulta)
+    + prestar(persona: Persona, equipo: Equipo): Prestamo
+    + prestar(persona: Persona, equipos: List<Equipo>): Prestamo
+    + devolver(prestamo: Prestamo, diasUsados: int): double
+    + setReglaMulta(reglaMulta: ReglaMulta): void
+}
+
+class ReporteInventario {
+    + mostrarInventario(equipos: List<Equipo>): void
+}
+
+ServicioPrestamos --> PrestamoRepository
+ServicioPrestamos --> NotificadorServicio
+ServicioPrestamos --> ReglaMulta
+ServicioPrestamos ..> Prestamo
+ReporteInventario ..> Equipo
+
+@enduml
