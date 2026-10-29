@@ -3,7 +3,7 @@ skinparam classAttributeIconSize 0
 
 ' --- PERSONAS ---
 abstract class Persona {
-    - documento: String
+    - documento: String {readOnly}
     - nombre: String
     + Persona(documento: String, nombre: String)
     + getDocumento(): String
@@ -35,21 +35,24 @@ Persona <|-- Docente
 class Cargador {
     - serial: String
     - vatios: int
-    + Cargador(serial: String, vatios: int)
+    ~ Cargador(serial: String, vatios: int)
     + getSerial(): String
     + getVatios(): int
+    + toString(): String
 }
 
 abstract class Equipo {
-    - codigo: String
-    - marca: String
+    - codigo: String {readOnly}
+    - marca: String {readOnly}
     - disponible: boolean
     + Equipo(codigo: String, marca: String)
     + getCodigo(): String
     + getMarca(): String
     + isDisponible(): boolean
-    + setDisponible(disponible: boolean): void
+    + marcarPrestado(): void
+    + marcarDevuelto(): void
     + {abstract} getMultaDiaria(): double
+    + toString(): String
 }
 
 class Portatil {
@@ -59,6 +62,7 @@ class Portatil {
     + getMemoriaRamGb(): int
     + getCargador(): Cargador
     + getMultaDiaria(): double
+    + toString(): String
 }
 
 class Proyector {
@@ -66,6 +70,7 @@ class Proyector {
     + Proyector(codigo: String, marca: String, lumenes: int)
     + getLumenes(): int
     + getMultaDiaria(): double
+    + toString(): String
 }
 
 class Tablet {
@@ -88,6 +93,7 @@ class NotificadorConsola {
 }
 
 NotificadorServicio <|.. NotificadorConsola
+NotificadorServicio ..> Persona
 
 interface ReglaMulta {
     + calcularMulta(equipos: List<Equipo>, diasRetraso: int): double
@@ -103,6 +109,8 @@ class ReglaMultaSemanaUniversitaria {
 
 ReglaMulta <|.. ReglaMultaEstandar
 ReglaMulta <|.. ReglaMultaSemanaUniversitaria
+ReglaMulta ..> Equipo
+ReglaMultaSemanaUniversitaria ..> ReglaMultaEstandar
 
 ' --- PERSISTENCIA / REPOSITORIO ---
 interface PrestamoRepository {
@@ -119,24 +127,27 @@ class PrestamoRepositoryMemoria {
 }
 
 PrestamoRepository <|.. PrestamoRepositoryMemoria
+PrestamoRepositoryMemoria "1" o-- "0..*" Prestamo
+PrestamoRepository ..> Persona
+PrestamoRepository ..> Prestamo
 
 ' --- PRÉSTAMO Y SERVICIOS ---
 class Prestamo {
     - {static} contadorConsecutivo: int = 1
-    - numeroConsecutivo: int
-    - persona: Persona
-    - equipos: List<Equipo>
+    - numeroConsecutivo: int {readOnly}
+    - persona: Persona {readOnly}
+    - equipos: List<Equipo> {readOnly}
     - activo: boolean
     + Prestamo(persona: Persona, equipos: List<Equipo>)
     + getNumeroConsecutivo(): int
     + getPersona(): Persona
     + getEquipos(): List<Equipo>
     + isActivo(): boolean
-    + setActivo(activo: boolean): void
+    ~ registrarDevolucion(): void
 }
 
-Prestamo "1" --> "1" Persona
-Prestamo "1" o-- "1..*" Equipo : agregación
+Prestamo "0..*" --> "1" Persona : pertenece a
+Prestamo "0..*" o-- "1..*" Equipo : agregación
 
 class ServicioPrestamos {
     - prestamoRepository: PrestamoRepository
@@ -150,13 +161,32 @@ class ServicioPrestamos {
 }
 
 class ReporteInventario {
-    + mostrarInventario(equipos: List<Equipo>): void
+    + {static} mostrarInventario(equipos: List<Equipo>): void
 }
 
 ServicioPrestamos --> PrestamoRepository
 ServicioPrestamos --> NotificadorServicio
 ServicioPrestamos --> ReglaMulta
 ServicioPrestamos ..> Prestamo
+ServicioPrestamos ..> Persona
+ServicioPrestamos ..> Equipo
 ReporteInventario ..> Equipo
+
+class Main {
+    + {static} main(args: String[]): void
+}
+
+Main ..> ServicioPrestamos
+Main ..> PrestamoRepositoryMemoria
+Main ..> NotificadorConsola
+Main ..> ReglaMultaEstandar
+Main ..> ReglaMultaSemanaUniversitaria
+Main ..> ReporteInventario
+Main ..> Estudiante
+Main ..> Docente
+Main ..> Portatil
+Main ..> Proyector
+Main ..> Tablet
+Main ..> Equipo
 
 @enduml
