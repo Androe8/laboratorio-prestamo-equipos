@@ -19,6 +19,7 @@ public class PrestamoRepositoryMemoria implements PrestamoRepository {
     @Override
     public List<Prestamo> obtenerActivosPorPersona(Persona persona) {
         List<Prestamo> activos = new ArrayList<>();
+        // Recorre la lista de préstamos y agrega a la lista "activos" aquellos que estén activos y correspondan a la persona indicada
         for (Prestamo p : prestamos) {
             if (p.isActivo() && p.getPersona().getDocumento().equals(persona.getDocumento())) {
                 activos.add(p);

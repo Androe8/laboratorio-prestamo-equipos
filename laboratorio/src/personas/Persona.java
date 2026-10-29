@@ -5,7 +5,7 @@ package personas;
  */
 
 public abstract class Persona {
-    private String documento;
+    private final String documento;
     private String nombre;
 
     public Persona(String documento, String nombre) {

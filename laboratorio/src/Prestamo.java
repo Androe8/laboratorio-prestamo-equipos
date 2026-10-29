@@ -1,17 +1,17 @@
-/**
- * Clase que representa un préstamo de equipos a una persona.
- */
 import personas.Persona;
 import equipos.Equipo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase que representa un préstamo de equipos a una persona.
+ */
 public class Prestamo {
-    private static int contadorConsecutivo = 1;
+    private static int contadorConsecutivo = 1; // Contador estático para asignar números consecutivos a los préstamos
     
-    private int numeroConsecutivo;
-    private Persona persona;
-    private List<Equipo> equipos;
+    private final int numeroConsecutivo;
+    private final Persona persona;
+    private final List<Equipo> equipos;
     private boolean activo;
 
     public Prestamo(Persona persona, List<Equipo> equipos) {
@@ -37,9 +37,10 @@ public class Prestamo {
         return activo;
     }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
+    void registrarDevolucion() {
+        if (!activo) {
+            throw new IllegalStateException("El préstamo #" + numeroConsecutivo + " ya fue devuelto.");
+        }
+        activo = false;
     }
 }
-
-

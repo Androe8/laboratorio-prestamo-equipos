@@ -24,4 +24,3 @@ public class Docente extends Persona {
         return 3;
     }
 }
-

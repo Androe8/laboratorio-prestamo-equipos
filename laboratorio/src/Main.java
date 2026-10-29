@@ -10,7 +10,7 @@ import equipos.Tablet;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=================== LABORATORIO DE PRÉSTAMO DE EQUIPOS ===================\n");
+        System.out.println("=================== Laboratorio Prestamo Equipos ===================\n");
 
         // 1. Crear dos portátiles, un proyector, una tablet, una estudiante y un docente
         Portatil laptop1 = new Portatil("LAP01", "Dell", 16, "CHG-D16", 65);
@@ -20,8 +20,8 @@ public class Main {
 
         List<Equipo> inventario = Arrays.asList(laptop1, laptop2, proyector, tablet);
 
-        Estudiante estudiante = new Estudiante("100123456", "Valeria Gómez", "Ingeniería de Sistemas");
-        Docente docente = new Docente("709876543", "Carlos Pérez", "Facultad de Ingeniería");
+        Estudiante estudiante = new Estudiante("100123456", "Luisa Lopez", "Ingeniería de Software");
+        Docente docente = new Docente("709876543", "Luis Fernando", "Facultad de Ingeniería");
 
         PrestamoRepository repo = new PrestamoRepositoryMemoria();
         NotificadorServicio notificador = new NotificadorConsola();
@@ -42,14 +42,14 @@ public class Main {
             System.out.println("Intentando que la estudiante preste otro portátil (debe fallar por límite)...");
             servicio.prestar(estudiante, laptop2);
         } catch (Exception e) {
-            System.out.println("   [RECHAZADO]: " + e.getMessage());
+            System.out.println("   RECHAZADO: " + e.getMessage());
         }
 
         try {
             System.out.println("Intentando que el docente preste el portátil ocupado LAP01...");
             servicio.prestar(docente, laptop1);
         } catch (Exception e) {
-            System.out.println("   [RECHAZADO]: " + e.getMessage());
+            System.out.println("   RECHAZADO: " + e.getMessage());
         }
 
         // 4. Imprimir el inventario
@@ -61,17 +61,18 @@ public class Main {
         acumuladoMultas += servicio.devolver(pEstudiante, 5); // 2 días de retraso
         acumuladoMultas += servicio.devolver(pDocente, 8);    // A tiempo
 
-        // 6. Prueba con Semana Universitaria
+        // 6. Prueba con Semana Universitaria usando otro servicio
         System.out.println("\n---> 6. Préstamo con tarifa de Semana Universitaria:");
-        servicio.setReglaMulta(new ReglaMultaSemanaUniversitaria());
+        ServicioPrestamos servicioSemana = new ServicioPrestamos(
+                repo, notificador, new ReglaMultaSemanaUniversitaria());
         
-        Prestamo pSemana = servicio.prestar(estudiante, laptop1);
+        Prestamo pSemana = servicioSemana.prestar(estudiante, laptop1);
         // Devolución a los 5 días (2 días retraso). Multa estándar = $30.000, con descuento = $15.000
-        acumuladoMultas += servicio.devolver(pSemana, 5);
+        acumuladoMultas += servicioSemana.devolver(pSemana, 5);
 
         // 7. Total de multas e inventario final
         System.out.println("\n---> 7. Resultado Final:");
-        System.out.println("TOTAL RECAUDADO EN MULTAS: $" + String.format("%.2f", acumuladoMultas));
+        System.out.println("TOTAL RECAUDADO EN MULTAS: $" + String.format("%.2f", acumuladoMultas)); //"%.2f" formatea el número a dos decimales
         ReporteInventario.mostrarInventario(inventario);
     }
 }

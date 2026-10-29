@@ -5,8 +5,8 @@ package equipos;
  * Clase abstracta que representa un equipo.
  */
 public abstract class Equipo {
-    private String codigo;
-    private String marca;
+    private final String codigo; //final, para que no se pueda cambiar después de la creación del objeto
+    private final String marca;
     private boolean disponible;
 
     public Equipo(String codigo, String marca) {
@@ -16,7 +16,6 @@ public abstract class Equipo {
     }
 
     //Este método devuelve el código del equipo.
-    //Getters y Setters.
     public String getCodigo() {
         return codigo;
     }
@@ -29,8 +28,18 @@ public abstract class Equipo {
         return disponible;
     }
 
-    public void setDisponible(boolean disponible) {
-        this.disponible = disponible;
+    public void marcarPrestado() {
+        if (!disponible) {
+            throw new IllegalStateException("El equipo " + codigo + " ya está prestado.");
+        }
+        disponible = false;
+    }
+
+    public void marcarDevuelto() {
+        if (disponible) {
+            throw new IllegalStateException("El equipo " + codigo + " ya está disponible.");
+        }
+        disponible = true;
     }
 
     public abstract double getMultaDiaria();

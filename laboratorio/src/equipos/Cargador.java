@@ -7,7 +7,7 @@ public class Cargador {
     private String serial;
     private int vatios;
 
-    public Cargador(String serial, int vatios) {
+    Cargador(String serial, int vatios) {
         this.serial = serial;
         this.vatios = vatios;
     }
@@ -25,4 +25,3 @@ public class Cargador {
         return String.format("[Serial: %s, Vatios: %dW]", serial, vatios);
     }
 }
-

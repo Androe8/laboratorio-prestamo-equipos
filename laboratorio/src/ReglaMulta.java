@@ -7,4 +7,4 @@ import equipos.Equipo;
 
 public interface ReglaMulta {
     double calcularMulta(List<Equipo> equipos, int diasRetraso);
-} 
+}
